@@ -21,7 +21,7 @@ services:
       - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
     networks:
       - app
-    command: npm run dev
+    command: /bin/sh -c "npm install && npm run dev"
     depends_on:
       - php
 
