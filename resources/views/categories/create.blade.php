@@ -13,14 +13,8 @@
                 <input type="text" name="name" class="w-full border rounded p-2" required value="{{ old('name') }}">
                 @error('name') <div class="text-red-600">{{ $message }}</div> @enderror
             </div>
-            <div class="mb-4">
-                <label class="block font-medium">Description</label>
-                <textarea name="description" class="w-full border rounded p-2">{{ old('description') }}</textarea>
-                @error('description') <div class="text-red-600">{{ $message }}</div> @enderror
-            </div>
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Create</button>
             <a href="{{ route('categories.index') }}" class="ml-4 text-gray-700">Cancel</a>
         </form>
     </div>
 </x-app-layout>
-

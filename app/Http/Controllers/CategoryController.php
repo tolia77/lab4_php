@@ -39,9 +39,8 @@ class CategoryController extends Controller
         }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
         ]);
-        Category::create($validated);
+        Category::create(['name' => $validated['name']]);
         return redirect()->route('categories.index')->with('success', 'Category created.');
     }
 
@@ -62,9 +61,8 @@ class CategoryController extends Controller
         }
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
         ]);
-        $category->update($validated);
+        $category->update(['name' => $validated['name']]);
         return redirect()->route('categories.index')->with('success', 'Category updated.');
     }
 
@@ -78,4 +76,3 @@ class CategoryController extends Controller
         return redirect()->route('categories.index')->with('success', 'Category deleted.');
     }
 }
-

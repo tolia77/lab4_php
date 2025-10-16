@@ -6,10 +6,6 @@
     </x-slot>
 
     <div class="py-6 max-w-3xl mx-auto">
-        <div class="mb-4">
-            <strong>Description:</strong>
-            <div>{{ $category->description }}</div>
-        </div>
         <div>
             <strong>Products in this category:</strong>
             <ul class="list-disc ml-6">
@@ -23,4 +19,3 @@
         <a href="{{ route('categories.index') }}" class="inline-block mt-4 text-blue-700 hover:underline">Back to Categories</a>
     </div>
 </x-app-layout>
-
