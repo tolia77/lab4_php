@@ -1,0 +1,6 @@
+use App\Models\User;
+$user = User::where('email', 'test1@test.com')->first();
+$user->role = 'admin';
+$user->save();
+
+exit

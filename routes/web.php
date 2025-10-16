@@ -17,6 +17,15 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('categories', CategoryController::class);
+
+    // Admin dashboard route (named) — checks the user's role at runtime and returns a simple view.
+    Route::get('/admin', function () {
+        $user = auth()->user();
+        if (! $user || ! $user->isAdmin()) {
+            abort(403);
+        }
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
 });
 
 require __DIR__.'/auth.php';

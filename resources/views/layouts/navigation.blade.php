@@ -50,9 +50,16 @@
                         </x-dropdown-link>
 
                         @if(Auth::user()->isAdmin())
-                            <x-dropdown-link href="{{ route('admin.dashboard', [], false) }}">
-                                {{ __('Admin') }}
-                            </x-dropdown-link>
+                            @if(Route::has('admin.dashboard'))
+                                <x-dropdown-link :href="route('admin.dashboard')">
+                                    {{ __('Admin') }}
+                                </x-dropdown-link>
+                            @else
+                                {{-- Route name not defined yet; fall back to /admin --}}
+                                <x-dropdown-link href="{{ url('/admin') }}">
+                                    {{ __('Admin') }}
+                                </x-dropdown-link>
+                            @endif
                         @endif
 
                         <!-- Authentication -->
