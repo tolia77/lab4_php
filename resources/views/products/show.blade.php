@@ -15,9 +15,9 @@
         @endif
 
         <div class="bg-white shadow rounded p-6">
-            @if($product->image_path && ($product->image_url || $product->image_data_uri))
+            @if($product->image_path)
                 <div class="mb-6">
-                    <img src="{{ $product->image_url ?? $product->image_data_uri }}" alt="{{ $product->name }}" class="w-full max-h-96 object-cover rounded">
+                    <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" class="w-full max-h-96 object-cover rounded">
                 </div>
             @endif
             <div class="mb-4">
