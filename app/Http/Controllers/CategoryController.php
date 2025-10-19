@@ -3,26 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\CategoryRequest;
 
 class CategoryController extends Controller
 {
-    // List all categories (all users)
     public function index()
     {
         $categories = Category::all();
         return view('categories.index', compact('categories'));
     }
 
-    // Show a single category (all users)
     public function show(Category $category)
     {
         $category->load('products');
         return view('categories.show', compact('category'));
     }
 
-    // Show create form (admin only)
     public function create()
     {
         if (!Auth::user()->isAdmin()) {
@@ -31,20 +28,16 @@ class CategoryController extends Controller
         return view('categories.create');
     }
 
-    // Store new category (admin only)
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
         if (!Auth::user()->isAdmin()) {
             abort(403);
         }
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
+        $validated = $request->validated();
         Category::create(['name' => $validated['name']]);
         return redirect()->route('categories.index')->with('success', 'Category created.');
     }
 
-    // Show edit form (admin only)
     public function edit(Category $category)
     {
         if (!Auth::user()->isAdmin()) {
@@ -53,20 +46,16 @@ class CategoryController extends Controller
         return view('categories.edit', compact('category'));
     }
 
-    // Update category (admin only)
-    public function update(Request $request, Category $category)
+    public function update(CategoryRequest $request, Category $category)
     {
         if (!Auth::user()->isAdmin()) {
             abort(403);
         }
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
+        $validated = $request->validated();
         $category->update(['name' => $validated['name']]);
         return redirect()->route('categories.index')->with('success', 'Category updated.');
     }
 
-    // Delete category (admin only)
     public function destroy(Category $category)
     {
         if (!Auth::user()->isAdmin()) {

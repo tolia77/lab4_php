@@ -6,11 +6,12 @@ use App\Models\Review;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\ReviewStoreRequest;
+use App\Http\Requests\ReviewUpdateRequest;
 
 class ReviewController extends Controller
 {
-    // Store a new review for a product (authenticated customer)
-    public function store(Request $request, Product $product)
+    public function store(ReviewStoreRequest $request, Product $product)
     {
         $user = Auth::user();
         if (!$user || !$user->customer) {
@@ -19,7 +20,6 @@ class ReviewController extends Controller
 
         $customerId = $user->customer->id;
 
-        // Prevent duplicate reviews by the same customer for the same product
         $already = Review::where('product_id', $product->id)
             ->where('customer_id', $customerId)
             ->exists();
@@ -28,10 +28,7 @@ class ReviewController extends Controller
             return redirect()->back()->with('error', 'You have already reviewed this product.');
         }
 
-        $validated = $request->validate([
-            'rating' => 'required|integer|between:1,5',
-            'comment' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         Review::create([
             'product_id' => $product->id,
@@ -43,7 +40,6 @@ class ReviewController extends Controller
         return redirect()->back()->with('success', 'Review submitted.');
     }
 
-    // Admin: list all reviews
     public function index()
     {
         if (!Auth::user() || !Auth::user()->isAdmin()) {
@@ -54,7 +50,6 @@ class ReviewController extends Controller
         return view('reviews.index', compact('reviews'));
     }
 
-    // Admin: show edit form
     public function edit(Review $review)
     {
         $user = Auth::user();
@@ -64,25 +59,20 @@ class ReviewController extends Controller
         return view('reviews.edit', compact('review'));
     }
 
-    // Admin: update review
-    public function update(Request $request, Review $review)
+    public function update(ReviewUpdateRequest $request, Review $review)
     {
         $user = Auth::user();
         if (!$user || (! $user->isAdmin() && (! $user->customer || $user->customer->id !== $review->customer_id))) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'rating' => 'required|integer|between:1,5',
-            'comment' => 'nullable|string|max:1000',
-        ]);
+        $validated = $request->validated();
 
         $review->update($validated);
 
         return redirect()->route('products.show', $review->product_id)->with('success', 'Review updated.');
     }
 
-    // Admin: delete review
     public function destroy(Review $review)
     {
         $user = Auth::user();

@@ -5,9 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOrderRequest;
 use App\Models\Order;
 use App\Services\OrderService;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Request;
 
 class OrderController extends Controller
 {
@@ -18,16 +15,12 @@ class OrderController extends Controller
         $this->service = $service;
     }
 
-    /**
-     * Store a new order.
-     * Works for both authenticated and guest users.
-     */
+
     public function store(StoreOrderRequest $request)
     {
         $userId = optional($request->user())->id;
         $order = $this->service->createOrder($request->validated(), $userId);
 
-        // Clear the cart after successful order
         session()->forget('cart');
 
         if ($request->expectsJson()) {
@@ -56,8 +49,7 @@ class OrderController extends Controller
             return redirect()->route('login');
         }
 
-        // Get orders through customer relationship
-        $orders = \App\Models\Order::whereHas('customer', function($query) use ($user) {
+        $orders = Order::whereHas('customer', function($query) use ($user) {
             $query->where('user_id', $user->id);
         })->with(['orderItems.product', 'customer'])
             ->orderBy('created_at', 'desc')
@@ -70,7 +62,6 @@ class OrderController extends Controller
     {
         $order->load(['orderItems.product', 'customer']);
 
-        // Check authorization
         $user = auth()->user();
         if ($user && $order->customer->user_id !== $user->id && !$user->isAdmin()) {
             abort(403);
