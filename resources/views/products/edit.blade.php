@@ -48,7 +48,9 @@
                 <label class="block font-medium">Image</label>
                 @if($product->image_path)
                     <div class="mb-2">
-                        <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" class="h-32 rounded border">
+                        <div class="h-32 bg-gray-100 flex items-center justify-center overflow-hidden rounded border">
+                            <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" class="max-h-full max-w-full object-contain">
+                        </div>
                     </div>
                 @endif
                 <input type="file" name="image" accept="image/*" class="w-full border rounded p-2">
@@ -60,4 +62,3 @@
         </form>
     </div>
 </x-app-layout>
-

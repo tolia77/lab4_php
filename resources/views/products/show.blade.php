@@ -17,7 +17,9 @@
         <div class="bg-white shadow rounded p-6">
             @if($product->image_path)
                 <div class="mb-6">
-                    <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" class="w-full max-h-96 object-cover rounded">
+                    <div class="w-full max-h-96 bg-gray-100 flex items-center justify-center overflow-hidden rounded">
+                        <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" class="max-h-full max-w-full object-contain rounded">
+                    </div>
                 </div>
             @endif
             <div class="mb-4">

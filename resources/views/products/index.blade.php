@@ -24,7 +24,9 @@
             @foreach($products as $product)
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
                     @if($product->image_path)
-                        <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" class="w-full h-40 object-cover">
+                        <div class="w-full h-40 flex items-center justify-center overflow-hidden">
+                            <img src="{{ asset('storage/'.$product->image_path) }}" alt="{{ $product->name }}" class="max-h-full max-w-full object-contain">
+                        </div>
                     @endif
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-2">
