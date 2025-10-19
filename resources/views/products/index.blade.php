@@ -23,6 +23,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach($products as $product)
                 <div class="bg-white shadow rounded overflow-hidden hover:shadow-lg transition">
+                    @if($product->image_path && ($product->image_url || $product->image_data_uri))
+                        <img src="{{ $product->image_url ?? $product->image_data_uri }}" alt="{{ $product->name }}" class="w-full h-40 object-cover">
+                    @endif
                     <div class="p-6">
                         <h3 class="text-lg font-semibold mb-2">
                             <a href="{{ route('products.show', $product) }}" class="text-gray-900 hover:text-blue-600">

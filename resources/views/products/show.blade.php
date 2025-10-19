@@ -15,6 +15,11 @@
         @endif
 
         <div class="bg-white shadow rounded p-6">
+            @if($product->image_path && ($product->image_url || $product->image_data_uri))
+                <div class="mb-6">
+                    <img src="{{ $product->image_url ?? $product->image_data_uri }}" alt="{{ $product->name }}" class="w-full max-h-96 object-cover rounded">
+                </div>
+            @endif
             <div class="mb-4">
                 <strong class="text-gray-700">Category:</strong>
                 <span class="text-gray-900">{{ $product->category->name ?? 'No Category' }}</span>

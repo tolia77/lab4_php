@@ -14,7 +14,8 @@ class Product extends Model
         'description',
         'price',
         'stock_quantity',
-        'category_id'
+        'category_id',
+        'image_path'
     ];
 
     protected $casts = [
@@ -36,4 +37,3 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 }
-

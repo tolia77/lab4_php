@@ -6,7 +6,7 @@
     </x-slot>
 
     <div class="py-6 max-w-3xl mx-auto">
-        <form method="POST" action="{{ route('products.store') }}">
+        <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
             @csrf
             <div class="mb-4">
                 <label class="block font-medium">Name</label>
@@ -40,9 +40,13 @@
                 </select>
                 @error('category_id') <div class="text-red-600">{{ $message }}</div> @enderror
             </div>
+            <div class="mb-6">
+                <label class="block font-medium">Image</label>
+                <input type="file" name="image" accept="image/*" class="w-full border rounded p-2">
+                @error('image') <div class="text-red-600">{{ $message }}</div> @enderror
+            </div>
             <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">Create</button>
             <a href="{{ route('products.index') }}" class="ml-4 text-gray-700">Cancel</a>
         </form>
     </div>
 </x-app-layout>
-

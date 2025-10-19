@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\ProductRequest;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -40,6 +41,9 @@ class ProductController extends Controller
             abort(403);
         }
         $validated = $request->validated();
+        if ($request->hasFile('image')) {
+            $validated['image_path'] = $request->file('image')->store('products', 'public');
+        }
         Product::create($validated);
         return redirect()->route('products.index')->with('success', 'Product created.');
     }
@@ -59,6 +63,12 @@ class ProductController extends Controller
             abort(403);
         }
         $validated = $request->validated();
+        if ($request->hasFile('image')) {
+            if ($product->image_path) {
+                Storage::disk('public')->delete($product->image_path);
+            }
+            $validated['image_path'] = $request->file('image')->store('products', 'public');
+        }
         $product->update($validated);
         return redirect()->route('products.index')->with('success', 'Product updated.');
     }
@@ -67,6 +77,9 @@ class ProductController extends Controller
     {
         if (! (auth()->check() && auth()->user()->isAdmin())) {
             abort(403);
+        }
+        if ($product->image_path) {
+            Storage::disk('public')->delete($product->image_path);
         }
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted.');
