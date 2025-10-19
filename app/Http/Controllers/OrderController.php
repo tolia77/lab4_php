@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderRequest;
+use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -40,10 +41,9 @@ class OrderController extends Controller
             ->with('success', 'Order placed successfully!');
     }
 
-    public function confirmation($orderId)
+    public function confirmation(Order $order)
     {
-        $order = \App\Models\Order::with(['orderItems.product', 'customer'])
-            ->findOrFail($orderId);
+        $order->load(['orderItems.product', 'customer']);
 
         return view('orders.confirmation', compact('order'));
     }
@@ -66,10 +66,9 @@ class OrderController extends Controller
         return view('orders.index', compact('orders'));
     }
 
-    public function show($orderId)
+    public function show(Order $order)
     {
-        $order = \App\Models\Order::with(['orderItems.product', 'customer'])
-            ->findOrFail($orderId);
+        $order->load(['orderItems.product', 'customer']);
 
         // Check authorization
         $user = auth()->user();
