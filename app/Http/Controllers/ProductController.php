@@ -39,6 +39,7 @@ class ProductController extends Controller
         if (!Auth::user()->isAdmin()) {
             abort(403);
         }
+        # TODO: Поміняти на шось інакше не помню шо
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
