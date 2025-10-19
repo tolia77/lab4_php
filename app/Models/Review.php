@@ -16,8 +16,6 @@ class Review extends Model
         'comment'
     ];
 
-    public $timestamps = false;
-
     protected $casts = [
         'created_at' => 'datetime',
     ];
@@ -32,4 +30,3 @@ class Review extends Model
         return $this->belongsTo(Customer::class);
     }
 }
-

@@ -19,7 +19,12 @@ class ProductController extends Controller
     // Show a single product (all users)
     public function show(Product $product)
     {
-        $product->load('category');
+        // load category and reviews with customer to avoid N+1
+        $product->load([
+            'category',
+            'reviews.customer' // ensure customer is eager loaded for each review
+        ]);
+
         return view('products.show', compact('product'));
     }
 
@@ -88,4 +93,3 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product deleted.');
     }
 }
-
