@@ -57,7 +57,8 @@ class ReviewController extends Controller
     // Admin: show edit form
     public function edit(Review $review)
     {
-        if (!Auth::user() || !Auth::user()->isAdmin()) {
+        $user = Auth::user();
+        if (!$user || (! $user->isAdmin() && (! $user->customer || $user->customer->id !== $review->customer_id))) {
             abort(403);
         }
         return view('reviews.edit', compact('review'));
@@ -66,7 +67,8 @@ class ReviewController extends Controller
     // Admin: update review
     public function update(Request $request, Review $review)
     {
-        if (!Auth::user() || !Auth::user()->isAdmin()) {
+        $user = Auth::user();
+        if (!$user || (! $user->isAdmin() && (! $user->customer || $user->customer->id !== $review->customer_id))) {
             abort(403);
         }
 
@@ -83,7 +85,8 @@ class ReviewController extends Controller
     // Admin: delete review
     public function destroy(Review $review)
     {
-        if (!Auth::user() || !Auth::user()->isAdmin()) {
+        $user = Auth::user();
+        if (!$user || (! $user->isAdmin() && (! $user->customer || $user->customer->id !== $review->customer_id))) {
             abort(403);
         }
 

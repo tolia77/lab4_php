@@ -85,7 +85,8 @@
                                 <div class="mt-2 text-gray-700">{{ $review->comment }}</div>
                             @endif
 
-                            @can('admin') {{-- assumes a policy or isAdmin check; adjust as needed --}}
+                            {{-- show edit/delete for admin users or the review owner --}}
+                            @if(auth()->user() && (auth()->user()->isAdmin() || (auth()->user()->customer && auth()->user()->customer->id === $review->customer_id)))
                                 <div class="mt-2">
                                     <form action="{{ route('reviews.destroy', $review) }}" method="POST" class="inline">
                                         @csrf
@@ -94,7 +95,7 @@
                                     </form>
                                     <a href="{{ route('reviews.edit', $review) }}" class="ml-4 text-blue-600 hover:underline">Edit</a>
                                 </div>
-                            @endcan
+                            @endif
                         </div>
                     @endforeach
                 </div>
