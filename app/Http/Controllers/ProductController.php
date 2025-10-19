@@ -27,7 +27,7 @@ class ProductController extends Controller
 
     public function create()
     {
-        if (!Auth::user()->isAdmin()) {
+        if (! (auth()->check() && auth()->user()->isAdmin())) {
             abort(403);
         }
         $categories = Category::all();
@@ -36,7 +36,7 @@ class ProductController extends Controller
 
     public function store(ProductRequest $request)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (! (auth()->check() && auth()->user()->isAdmin())) {
             abort(403);
         }
         $validated = $request->validated();
@@ -46,7 +46,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (! (auth()->check() && auth()->user()->isAdmin())) {
             abort(403);
         }
         $categories = Category::all();
@@ -55,7 +55,7 @@ class ProductController extends Controller
 
     public function update(ProductRequest $request, Product $product)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (! (auth()->check() && auth()->user()->isAdmin())) {
             abort(403);
         }
         $validated = $request->validated();
@@ -63,10 +63,9 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product updated.');
     }
 
-    // Delete product (admin only)
     public function destroy(Product $product)
     {
-        if (!Auth::user()->isAdmin()) {
+        if (! (auth()->check() && auth()->user()->isAdmin())) {
             abort(403);
         }
         $product->delete();

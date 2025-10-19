@@ -49,11 +49,17 @@ class OrderController extends Controller
             return redirect()->route('login');
         }
 
-        $orders = Order::whereHas('customer', function($query) use ($user) {
-            $query->where('user_id', $user->id);
-        })->with(['orderItems.product', 'customer'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        if ($user->isAdmin()) {
+            $orders = Order::with(['orderItems.product', 'customer'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        } else {
+            $orders = Order::whereHas('customer', function($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })->with(['orderItems.product', 'customer'])
+                ->orderBy('created_at', 'desc')
+                ->get();
+        }
 
         return view('orders.index', compact('orders'));
     }
@@ -68,5 +74,21 @@ class OrderController extends Controller
         }
 
         return view('orders.show', compact('order'));
+    }
+
+    public function destroy(Order $order)
+    {
+        $user = auth()->user();
+        if (! $user || ! $user->isAdmin()) {
+            abort(403);
+        }
+
+        $order->delete();
+
+        if (request()->expectsJson()) {
+            return response()->json(['message' => 'Order deleted.'], 200);
+        }
+
+        return redirect()->route('admin.orders.index')->with('success', 'Order deleted.');
     }
 }

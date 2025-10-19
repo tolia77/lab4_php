@@ -6,6 +6,8 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,7 +40,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    // Admin dashboard route (named) — checks the user's role at runtime and returns a simple view.
     Route::get('/admin', function () {
         $user = auth()->user();
         if (!$user || !$user->isAdmin()) {
@@ -46,6 +47,53 @@ Route::middleware('auth')->group(function () {
         }
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::delete('/orders/{order}', [OrderController::class, 'destroy'])->name('orders.destroy');
+
+        Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+
+        Route::get('/users', function () {
+            $user = auth()->user();
+            if (!$user || !$user->isAdmin()) {
+                abort(403);
+            }
+            $users = User::paginate(20);
+            return view('admin.users.index', compact('users'));
+        })->name('users.index');
+
+        Route::get('/users/{user}/edit', function (User $user) {
+            $auth = auth()->user();
+            if (!$auth || !$auth->isAdmin()) {
+                abort(403);
+            }
+            return view('admin.users.edit', compact('user'));
+        })->name('users.edit');
+
+        Route::patch('/users/{user}', function (Request $request, User $user) {
+            $auth = auth()->user();
+            if (!$auth || !$auth->isAdmin()) {
+                abort(403);
+            }
+            $data = $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'email', 'max:255'],
+            ]);
+            $user->update($data);
+            return redirect()->route('admin.users.index');
+        })->name('users.update');
+
+        Route::delete('/users/{user}', function (User $user) {
+            $auth = auth()->user();
+            if (!$auth || !$auth->isAdmin()) {
+                abort(403);
+            }
+            $user->delete();
+            return redirect()->route('admin.users.index');
+        })->name('users.destroy');
+    });
 });
 
 Route::resource('categories', CategoryController::class);

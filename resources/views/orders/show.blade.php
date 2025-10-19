@@ -94,9 +94,21 @@
 
         <div class="mt-6">
             @auth
-                <a href="{{ route('orders.index') }}" class="text-blue-600 hover:underline">
-                    ← Back to My Orders
-                </a>
+                @if(Auth::user()->isAdmin())
+                    <a href="{{ route('admin.orders.index') }}" class="text-blue-600 hover:underline">
+                        ← Back to Orders
+                    </a>
+
+                    <form action="{{ route('admin.orders.destroy', $order) }}" method="POST" class="inline ml-4" onsubmit="return confirm('Delete this order?');">
+                        @csrf
+                        @method('DELETE')
+                        <button class="text-red-600 hover:underline">Delete Order</button>
+                    </form>
+                @else
+                    <a href="{{ route('orders.index') }}" class="text-blue-600 hover:underline">
+                        ← Back to My Orders
+                    </a>
+                @endif
             @else
                 <a href="{{ route('products.index') }}" class="text-blue-600 hover:underline">
                     ← Back to Products

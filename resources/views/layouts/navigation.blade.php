@@ -21,10 +21,33 @@
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
                         {{ __('Products') }}
                     </x-nav-link>
+
                     @auth
-                        <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
-                            {{ __('My Orders') }}
-                        </x-nav-link>
+                        @unless(Auth::user()->isAdmin())
+                            <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
+                                {{ __('My Orders') }}
+                            </x-nav-link>
+                        @endunless
+                    @endauth
+
+                    @auth
+                        @if(Auth::user()->isAdmin())
+                            @if(Route::has('admin.orders.index'))
+                                <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                                    {{ __('Manage Orders') }}
+                                </x-nav-link>
+                            @endif
+                            @if(Route::has('admin.reviews.index'))
+                                <x-nav-link :href="route('admin.reviews.index')" :active="request()->routeIs('admin.reviews.*')">
+                                    {{ __('Manage Reviews') }}
+                                </x-nav-link>
+                            @endif
+                            @if(Route::has('admin.users.index'))
+                                <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                                    {{ __('Manage Users') }}
+                                </x-nav-link>
+                            @endif
+                        @endif
                     @endauth
                 </div>
             </div>
@@ -133,6 +156,36 @@
             <x-responsive-nav-link :href="route('categories.index')" :active="request()->routeIs('categories.*')">
                 {{ __('Categories') }}
             </x-responsive-nav-link>
+
+            @auth
+                <x-responsive-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
+                    {{ __('Products') }}
+                </x-responsive-nav-link>
+
+                @unless(Auth::user()->isAdmin())
+                    <x-responsive-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
+                        {{ __('My Orders') }}
+                    </x-responsive-nav-link>
+                @endunless
+
+                @if(Auth::user()->isAdmin())
+                    @if(Route::has('admin.orders.index'))
+                        <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                            {{ __('Manage Orders') }}
+                    </x-responsive-nav-link>
+                    @endif
+                    @if(Route::has('admin.reviews.index'))
+                        <x-responsive-nav-link :href="route('admin.reviews.index')" :active="request()->routeIs('admin.reviews.*')">
+                            {{ __('Manage Reviews') }}
+                    </x-responsive-nav-link>
+                    @endif
+                    @if(Route::has('admin.users.index'))
+                        <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                            {{ __('Manage Users') }}
+                        </x-responsive-nav-link>
+                    @endif
+                @endif
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->

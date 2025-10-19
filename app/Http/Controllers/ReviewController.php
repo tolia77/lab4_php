@@ -14,18 +14,27 @@ class ReviewController extends Controller
     public function store(ReviewStoreRequest $request, Product $product)
     {
         $user = Auth::user();
-        if (!$user || !$user->customer) {
-            return redirect()->back()->with('error', 'You must be logged in as a customer to post a review.');
+
+        if (!$user) {
+            return redirect()->back()->with('error', 'You must be logged in to post a review.');
         }
 
-        $customerId = $user->customer->id;
-
-        $already = Review::where('product_id', $product->id)
-            ->where('customer_id', $customerId)
-            ->exists();
-
-        if ($already) {
-            return redirect()->back()->with('error', 'You have already reviewed this product.');
+        if ($user->isAdmin()) {
+            $customerId = $request->input('customer_id') ?? ($user->customer->id ?? null);
+            if (!$customerId) {
+                return redirect()->back()->with('error', 'Admin must provide customer_id to post a review.');
+            }
+        } else {
+            if (!$user->customer) {
+                return redirect()->back()->with('error', 'You must be logged in as a customer to post a review.');
+            }
+            $customerId = $user->customer->id;
+            $already = Review::where('product_id', $product->id)
+                ->where('customer_id', $customerId)
+                ->exists();
+            if ($already) {
+                return redirect()->back()->with('error', 'You have already reviewed this product.');
+            }
         }
 
         $validated = $request->validated();

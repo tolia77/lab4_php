@@ -55,6 +55,16 @@
                             <a href="{{ route('orders.show', $order->id) }}" class="text-blue-600 hover:underline text-sm">
                                 View Details →
                             </a>
+
+                            @auth
+                                @if(Auth::user()->isAdmin())
+                                    <form action="{{ route('admin.orders.destroy', $order) }}" method="POST" class="inline ml-4" onsubmit="return confirm('Delete this order?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="text-red-600 hover:underline text-sm">Delete</button>
+                                    </form>
+                                @endif
+                            @endauth
                         </div>
                     </div>
                 @endforeach
@@ -62,4 +72,3 @@
         @endif
     </div>
 </x-app-layout>
-
