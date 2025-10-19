@@ -20,18 +20,38 @@ class OrderService
     public function createOrder(array $data, ?int $userId = null): Order
     {
         return DB::transaction(function () use ($data, $userId) {
-            // Find or create customer
             if (!empty($data['customer_id'])) {
                 $customer = Customer::findOrFail($data['customer_id']);
             } else {
-                $customerData = $data['customer'] ?? [];
-                if ($userId !== null) {
-                    $customerData['user_id'] = $userId;
+                $customerPayload = $data['customer'] ?? [];
+
+                $customer = null;
+                if (!empty($customerPayload['email'])) {
+                    $customer = Customer::where('email', $customerPayload['email'])->lockForUpdate()->first();
                 }
-                $customer = Customer::create($customerData);
+
+                if ($customer) {
+                    $customer->fill([
+                        'first_name' => $customerPayload['first_name'] ?? $customer->first_name,
+                        'last_name' => $customerPayload['last_name'] ?? $customer->last_name,
+                        'phone_number' => $customerPayload['phone_number'] ?? $customer->phone_number,
+                        'shipping_address' => $customerPayload['shipping_address'] ?? $customer->shipping_address,
+                        'billing_address' => $customerPayload['billing_address'] ?? $customer->billing_address,
+                    ]);
+
+                    if ($userId && ! $customer->user_id) {
+                        $customer->user_id = $userId;
+                    }
+                    $customer->save();
+                } else {
+                    if ($userId !== null) {
+                        $customerPayload['user_id'] = $userId;
+                    }
+                    $customer = Customer::create($customerPayload);
+                }
             }
 
-            // Create the order
+            // Create order
             $order = Order::create([
                 'customer_id' => $customer->id,
                 'order_date' => now(),
@@ -40,12 +60,10 @@ class OrderService
 
             $total = 0;
 
-            // Process each order item
             foreach ($data['items'] as $item) {
                 $product = Product::lockForUpdate()->findOrFail($item['product_id']);
                 $qty = (int) $item['quantity'];
 
-                // Check stock availability
                 if ($product->stock_quantity < $qty) {
                     throw ValidationException::withMessages([
                         'items' => ["Insufficient stock for product: {$product->name}"],
@@ -54,17 +72,13 @@ class OrderService
 
                 $subtotal = round($product->price * $qty, 2);
 
-                // Create order item
                 $order->orderItems()->create([
                     'product_id' => $product->id,
                     'quantity' => $qty,
                     'subtotal' => $subtotal,
                 ]);
 
-                // Decrement stock
-                $product->stock_quantity -= $qty;
-                $product->save();
-
+                $product->decrement('stock_quantity', $qty);
                 $total += $subtotal;
             }
 
@@ -73,4 +87,3 @@ class OrderService
         });
     }
 }
-

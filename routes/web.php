@@ -37,9 +37,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('categories', CategoryController::class);
-    Route::resource('products', ProductController::class);
-    Route::resource('reviews', ReviewController::class)->only(['edit', 'update', 'destroy']);
 
     // Admin dashboard route (named) — checks the user's role at runtime and returns a simple view.
     Route::get('/admin', function () {
@@ -51,4 +48,7 @@ Route::middleware('auth')->group(function () {
     })->name('admin.dashboard');
 });
 
+Route::resource('categories', CategoryController::class);
+Route::resource('products', ProductController::class);
+Route::resource('reviews', ReviewController::class)->only(['edit', 'update', 'destroy']);
 require __DIR__ . '/auth.php';
