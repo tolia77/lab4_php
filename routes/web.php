@@ -6,6 +6,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\UserController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -55,44 +56,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
 
-        Route::get('/users', function () {
-            $user = auth()->user();
-            if (!$user || !$user->isAdmin()) {
-                abort(403);
-            }
-            $users = User::paginate(20);
-            return view('admin.users.index', compact('users'));
-        })->name('users.index');
-
-        Route::get('/users/{user}/edit', function (User $user) {
-            $auth = auth()->user();
-            if (!$auth || !$auth->isAdmin()) {
-                abort(403);
-            }
-            return view('admin.users.edit', compact('user'));
-        })->name('users.edit');
-
-        Route::patch('/users/{user}', function (Request $request, User $user) {
-            $auth = auth()->user();
-            if (!$auth || !$auth->isAdmin()) {
-                abort(403);
-            }
-            $data = $request->validate([
-                'name' => ['required', 'string', 'max:255'],
-                'email' => ['required', 'email', 'max:255'],
-            ]);
-            $user->update($data);
-            return redirect()->route('admin.users.index');
-        })->name('users.update');
-
-        Route::delete('/users/{user}', function (User $user) {
-            $auth = auth()->user();
-            if (!$auth || !$auth->isAdmin()) {
-                abort(403);
-            }
-            $user->delete();
-            return redirect()->route('admin.users.index');
-        })->name('users.destroy');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 });
 
