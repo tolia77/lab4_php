@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOrderRequest;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Request;
 
 class OrderController extends Controller
 {
@@ -19,45 +21,62 @@ class OrderController extends Controller
      * Store a new order.
      * Works for both authenticated and guest users.
      */
-    public function store(StoreOrderRequest $request): JsonResponse
+    public function store(StoreOrderRequest $request)
     {
         $userId = optional($request->user())->id;
         $order = $this->service->createOrder($request->validated(), $userId);
 
-        return response()->json([
-            'message' => 'Order created successfully',
-            'order' => $order,
-        ], 201);
+        // Clear the cart after successful order
+        session()->forget('cart');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'message' => 'Order created successfully',
+                'order' => $order,
+            ], 201);
+        }
+
+        return redirect()->route('orders.confirmation', $order->id)
+            ->with('success', 'Order placed successfully!');
+    }
+
+    public function confirmation($orderId)
+    {
+        $order = \App\Models\Order::with(['orderItems.product', 'customer'])
+            ->findOrFail($orderId);
+
+        return view('orders.confirmation', compact('order'));
+    }
+
+    public function index()
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return redirect()->route('login');
+        }
+
+        // Get orders through customer relationship
+        $orders = \App\Models\Order::whereHas('customer', function($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->with(['orderItems.product', 'customer'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('orders.index', compact('orders'));
+    }
+
+    public function show($orderId)
+    {
+        $order = \App\Models\Order::with(['orderItems.product', 'customer'])
+            ->findOrFail($orderId);
+
+        // Check authorization
+        $user = auth()->user();
+        if ($user && $order->customer->user_id !== $user->id && !$user->isAdmin()) {
+            abort(403);
+        }
+
+        return view('orders.show', compact('order'));
     }
 }
-<?php
-
-namespace App\Http\Requests;
-
-use Illuminate\Foundation\Http\FormRequest;
-
-class StoreOrderRequest extends FormRequest
-{
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    public function rules(): array
-    {
-        return [
-            'customer_id' => 'nullable|exists:customers,id',
-            'customer' => 'required_without:customer_id|array',
-            'customer.first_name' => 'required_without:customer_id|string|max:255',
-            'customer.last_name' => 'required_without:customer_id|string|max:255',
-            'customer.email' => 'required_without:customer_id|email|max:255',
-            'customer.phone_number' => 'nullable|string|max:255',
-            'customer.shipping_address' => 'nullable|string',
-            'customer.billing_address' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|integer|min:1',
-        ];
-    }
-}
-

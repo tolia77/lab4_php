@@ -62,4 +62,12 @@ class User extends Authenticatable
     {
         return $this->role === 'basic';
     }
+
+    /**
+     * Get the customer associated with this user.
+     */
+    public function customer()
+    {
+        return $this->hasOne(Customer::class);
+    }
 }

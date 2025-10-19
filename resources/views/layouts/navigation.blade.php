@@ -21,73 +21,96 @@
                     <x-nav-link :href="route('products.index')" :active="request()->routeIs('products.*')">
                         {{ __('Products') }}
                     </x-nav-link>
+                    @auth
+                        <x-nav-link :href="route('orders.index')" :active="request()->routeIs('orders.*')">
+                            {{ __('My Orders') }}
+                        </x-nav-link>
+                    @endauth
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
-            @auth
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div class="flex items-center gap-2">
-                                <span>{{ Auth::user()->name }}</span>
-                                @if(Auth::user()->isAdmin())
-                                    <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Admin</span>
-                                @else
-                                    <span class="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">Basic</span>
-                                @endif
-                            </div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        @if(Auth::user()->isAdmin())
-                            @if(Route::has('admin.dashboard'))
-                                <x-dropdown-link :href="route('admin.dashboard')">
-                                    {{ __('Admin') }}
-                                </x-dropdown-link>
-                            @else
-                                {{-- Route name not defined yet; fall back to /admin --}}
-                                <x-dropdown-link href="{{ url('/admin') }}">
-                                    {{ __('Admin') }}
-                                </x-dropdown-link>
-                            @endif
-                        @endif
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-            @else
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:text-gray-900">Log in</a>
-                    @if(Route::has('register'))
-                        <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 hover:text-gray-900">Sign up</a>
+            <!-- Right Side Navigation -->
+            <div class="flex items-center gap-4">
+                <!-- Cart Icon -->
+                <a href="{{ route('cart.index') }}" class="relative inline-flex items-center px-3 py-2 text-gray-700 hover:text-gray-900">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    @php
+                        $cartCount = collect(session('cart', []))->sum();
+                    @endphp
+                    @if($cartCount > 0)
+                        <span class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                            {{ $cartCount }}
+                        </span>
                     @endif
+                </a>
+
+                <!-- Settings Dropdown -->
+                @auth
+                <div class="hidden sm:flex sm:items-center">
+                    <x-dropdown align="right" width="48">
+                        <x-slot name="trigger">
+                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                                <div class="flex items-center gap-2">
+                                    <span>{{ Auth::user()->name }}</span>
+                                    @if(Auth::user()->isAdmin())
+                                        <span class="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">Admin</span>
+                                    @else
+                                        <span class="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">Basic</span>
+                                    @endif
+                                </div>
+
+                                <div class="ms-1">
+                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </div>
+                            </button>
+                        </x-slot>
+
+                        <x-slot name="content">
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+
+                            @if(Auth::user()->isAdmin())
+                                @if(Route::has('admin.dashboard'))
+                                    <x-dropdown-link :href="route('admin.dashboard')">
+                                        {{ __('Admin') }}
+                                    </x-dropdown-link>
+                                @else
+                                    {{-- Route name not defined yet; fall back to /admin --}}
+                                    <x-dropdown-link href="{{ url('/admin') }}">
+                                        {{ __('Admin') }}
+                                    </x-dropdown-link>
+                                @endif
+                            @endif
+
+                            <!-- Authentication -->
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+
+                                <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault();
+                                                    this.closest('form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            </form>
+                        </x-slot>
+                    </x-dropdown>
                 </div>
+                @else
+                <div class="hidden sm:flex sm:items-center">
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('login') }}" class="text-sm text-gray-700 hover:text-gray-900">Log in</a>
+                        @if(Route::has('register'))
+                            <a href="{{ route('register') }}" class="ml-4 text-sm text-gray-700 hover:text-gray-900">Sign up</a>
+                        @endif
+                    </div>
+                </div>
+                @endauth
             </div>
-            @endauth
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
