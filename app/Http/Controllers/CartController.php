@@ -44,7 +44,6 @@ class CartController extends Controller
             $cart[$product->id] = $quantity;
         }
 
-        // Check if total quantity exceeds stock
         if ($cart[$product->id] > $product->stock_quantity) {
             return back()->with('error', 'Not enough stock available');
         }
@@ -118,7 +117,6 @@ class CartController extends Controller
             }
         }
 
-        // Get existing customer if user is authenticated
         $customer = null;
         if (auth()->check() && auth()->user()->customer) {
             $customer = auth()->user()->customer;

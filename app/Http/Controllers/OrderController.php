@@ -54,7 +54,7 @@ class OrderController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
         } else {
-            $orders = Order::whereHas('customer', function($query) use ($user) {
+            $orders = Order::whereHas('customer', function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })->with(['orderItems.product', 'customer'])
                 ->orderBy('created_at', 'desc')
@@ -79,7 +79,7 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         $user = auth()->user();
-        if (! $user || ! $user->isAdmin()) {
+        if (!$user || !$user->isAdmin()) {
             abort(403);
         }
 

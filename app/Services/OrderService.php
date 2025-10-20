@@ -39,7 +39,7 @@ class OrderService
                         'billing_address' => $customerPayload['billing_address'] ?? $customer->billing_address,
                     ]);
 
-                    if ($userId && ! $customer->user_id) {
+                    if ($userId && !$customer->user_id) {
                         $customer->user_id = $userId;
                     }
                     $customer->save();
@@ -62,7 +62,7 @@ class OrderService
 
             foreach ($data['items'] as $item) {
                 $product = Product::lockForUpdate()->findOrFail($item['product_id']);
-                $qty = (int) $item['quantity'];
+                $qty = (int)$item['quantity'];
 
                 if ($product->stock_quantity < $qty) {
                     throw ValidationException::withMessages([
@@ -82,7 +82,6 @@ class OrderService
                 $total += $subtotal;
             }
 
-            // Return order with relationships loaded
             return $order->fresh('orderItems.product', 'customer');
         });
     }
